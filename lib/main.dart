@@ -34,7 +34,7 @@ class _EarningsPageState extends State<EarningsPage> {
      }
 
      DateTime now = DateTime.now();
-     if (now.isBefore(_startDate!) || now.isAfter(_endDate!.add(Duration(days: 1)))) {
+     if (now.isBefore(_startDate!) || now.isAfter(_endDate!)) {
        showDialog(
          context: context,
          builder: (BuildContext context) {
@@ -55,9 +55,9 @@ class _EarningsPageState extends State<EarningsPage> {
        return;
      }
 
-     int daysPassed = now.difference(_startDate!).inDays + 1;
+     int daysPassed = _endDate!.difference(_startDate!).inDays + 1;
      double earningsForWholePeriod = _earnedMoney * daysPassed;
-     double earningsFromDateToCurrent = _earnedMoney * now.difference(_startDate!).inDays;
+     double earningsFromDateToCurrent = _earnedMoney * (now.difference(_startDate!).inDays + 1);
 
      showDialog(
        context: context,
@@ -85,7 +85,6 @@ class _EarningsPageState extends State<EarningsPage> {
        },
      );
    }
-
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
