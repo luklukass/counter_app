@@ -56,8 +56,11 @@ class _EarningsPageState extends State<EarningsPage> {
      }
 
      int daysPassed = _endDate!.difference(_startDate!).inDays + 1;
+     int daysRemaining = _endDate!.difference(now).inDays;
+     int currentDay = now.difference(_startDate!).inDays + 1;
+
      double earningsForWholePeriod = _earnedMoney * daysPassed;
-     double earningsFromDateToCurrent = _earnedMoney * (now.difference(_startDate!).inDays + 1);
+     double earningsFromDateToCurrent = _earnedMoney * currentDay;
 
      showDialog(
        context: context,
@@ -71,6 +74,10 @@ class _EarningsPageState extends State<EarningsPage> {
                Text('Earnings for the whole period: \$${earningsForWholePeriod.toStringAsFixed(2)}'),
                SizedBox(height: 10),
                Text('Earnings from start date to current date: \$${earningsFromDateToCurrent.toStringAsFixed(2)}'),
+               SizedBox(height: 10),
+               Text('Current Day: $currentDay'),
+               SizedBox(height: 10),
+               Text('Days Remaining: $daysRemaining'),
              ],
            ),
            actions: [
@@ -85,6 +92,7 @@ class _EarningsPageState extends State<EarningsPage> {
        },
      );
    }
+
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
