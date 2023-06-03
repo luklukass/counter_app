@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
-  runApp(MyApp());
+    runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,91 +23,102 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: EarningsPage(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('cs')
+      ],
     );
   }
 }
 
 class EarningsPage extends StatefulWidget {
+  const EarningsPage({super.key});
+
   @override
   _EarningsPageState createState() => _EarningsPageState();
 }
 
 class _EarningsPageState extends State<EarningsPage> {
-   DateTime? _startDate;
-   DateTime? _endDate;
+  DateTime? _startDate;
+  DateTime? _endDate;
   double _earnedMoney = 0.0;
 
-   void _calculateEarnings() {
-     if (_startDate == null || _endDate == null || _earnedMoney <= 0) {
-       return;
-     }
+  void _calculateEarnings() {
+    if (_startDate == null || _endDate == null || _earnedMoney <= 0) {
+      return;
+    }
 
-     DateTime now = DateTime.now();
-     if (now.isBefore(_startDate!) || now.isAfter(_endDate!)) {
-       showDialog(
-         context: context,
-         builder: (BuildContext context) {
-           return AlertDialog(
-             title: Text('Invalid Date'),
-             content: Text('Please enter a valid date range.'),
-             actions: [
-               TextButton(
-                 child: Text('OK'),
-                 onPressed: () {
-                   Navigator.of(context).pop();
-                 },
-               ),
-             ],
-           );
-         },
-       );
-       return;
-     }
+    DateTime now = DateTime.now();
+    if (now.isBefore(_startDate!) || now.isAfter(_endDate!)) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Invalid Date'),
+            content: const Text('Please enter a valid date range.'),
+            actions: [
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
 
-     int daysPassed = _endDate!.difference(_startDate!).inDays + 1;
-     int daysRemaining = _endDate!.difference(now).inDays;
-     int currentDay = now.difference(_startDate!).inDays + 1;
+    int daysPassed = _endDate!.difference(_startDate!).inDays;
+    int daysRemaining = _endDate!.difference(now).inDays;
+    int currentDay = now.difference(_startDate!).inDays + 1;
 
-     double earningsForWholePeriod = _earnedMoney * daysPassed;
-     double earningsFromDateToCurrent = _earnedMoney * currentDay;
+    double earningsForWholePeriod = _earnedMoney * daysPassed;
+    double earningsFromDateToCurrent = _earnedMoney * currentDay;
 
-     showDialog(
-       context: context,
-       builder: (BuildContext context) {
-         return AlertDialog(
-           title: Text('Earnings Calculation'),
-           content: Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             mainAxisSize: MainAxisSize.min,
-             children: [
-               Text('Earnings for the whole period: \$${earningsForWholePeriod.toStringAsFixed(2)}'),
-               SizedBox(height: 10),
-               Text('Earnings from start date to current date: \$${earningsFromDateToCurrent.toStringAsFixed(2)}'),
-               SizedBox(height: 10),
-               Text('Current Day: $currentDay'),
-               SizedBox(height: 10),
-               Text('Days Remaining: $daysRemaining'),
-             ],
-           ),
-           actions: [
-             TextButton(
-               child: Text('OK'),
-               onPressed: () {
-                 Navigator.of(context).pop();
-               },
-             ),
-           ],
-         );
-       },
-     );
-   }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Motivační kalkulačka'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Výdělek za celkovou dobu: ${earningsForWholePeriod.toStringAsFixed(2)} Kč'),
+              const SizedBox(height: 10),
+              Text('Výdělek k dnešnímu dni: ${earningsFromDateToCurrent.toStringAsFixed(2)} Kč'),
+              const SizedBox(height: 10),
+              Text('Počet proběhlých dnů: $currentDay'),
+              SizedBox(height: 10),
+              Text('Počet zbývajících dní: $daysRemaining'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
+      locale: Locale('cs', 'CZ'), // Czech
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+
     );
 
     if (picked != null) {
@@ -116,28 +136,28 @@ class _EarningsPageState extends State<EarningsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Earnings Tracker'),
+        title: const Text('Motivační kalkulačka'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'Set Start and End Dates',
+            const Text(
+              'Nastav datum přijezdu a odjezdu',
               style: TextStyle(fontSize: 20.0),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 Column(
                   children: [
-                    Text('Start Date'),
-                    SizedBox(height: 10.0),
-                    Text(_startDate == null ? 'Not set' : DateFormat('yyyy-MM-dd').format(_startDate!)),
-                    SizedBox(height: 10.0),
+                    const Text('Příjezd'),
+                    const SizedBox(height: 10.0),
+                    Text(_startDate == null ? 'Nevybráno' : DateFormat.yMd('cs').format(_startDate!)),
+                    const SizedBox(height: 10.0),
                     ElevatedButton(
-                      child: Text('Select'),
+                      child: const Text('Vyber'),
                       onPressed: () {
                         _selectDate(context, true);
                       },
@@ -146,13 +166,14 @@ class _EarningsPageState extends State<EarningsPage> {
                 ),
                 Column(
                   children: [
-                    Text('End Date'),
-                    SizedBox(height: 10.0),
-                    Text(_endDate == null ? 'Not set' : DateFormat('yyyy-MM-dd').format(_endDate!)),
-                    SizedBox(height: 10.0),
+                    const Text('Odjezd'),
+                    const SizedBox(height: 10.0),
+                    Text(_endDate == null ? 'Nevybráno' : DateFormat.yMd('cs').format(_endDate!)),
+                    const SizedBox(height: 10.0),
                     ElevatedButton(
-                      child: Text('Select'),
+                      child: const Text('Vyber'),
                       onPressed: () {
+
                         _selectDate(context, false);
                       },
                     ),
@@ -160,12 +181,12 @@ class _EarningsPageState extends State<EarningsPage> {
                 ),
               ],
             ),
-            SizedBox(height: 20.0),
-            Text(
-              'Enter Earned Money for One Day',
+            const SizedBox(height: 20.0),
+            const Text(
+              'Zadej částku výdělku za jeden den',
               style: TextStyle(fontSize: 20.0),
             ),
-            SizedBox(height: 10.0),
+            const SizedBox(height: 10.0),
             TextField(
               keyboardType: TextInputType.number,
               onChanged: (value) {
@@ -173,15 +194,15 @@ class _EarningsPageState extends State<EarningsPage> {
                   _earnedMoney = double.parse(value);
                 });
               },
-              decoration: InputDecoration(
-                labelText: 'Earned Money',
-                hintText: 'Enter amount',
+              decoration: const InputDecoration(
+                labelText: 'Částka',
+                hintText: 'Zadej částku',
               ),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             ElevatedButton(
-              child: Text('Calculate'),
               onPressed: _calculateEarnings,
+              child: const Text('Vypočítej'),
             ),
           ],
         ),
